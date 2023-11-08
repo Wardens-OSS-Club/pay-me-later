@@ -1,4 +1,4 @@
-## PayMeLater
+## PayMeLater - NOT AUDITED - DO NOT USE THIS IN PROD
 
 `startDelayedPayment` to queue a payment
 
