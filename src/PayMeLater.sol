@@ -40,7 +40,7 @@ contract PayMeLater {
 
         IERC20 cachedToken = IERC20(token);
         uint256 startBal = cachedToken.balanceOf(address(this));
-        cachedToken.safeTransfer(msg.sender, amount);
+        cachedToken.safeTransferFrom(msg.sender, address(this), amount);
         uint256 newBal = cachedToken.balanceOf(address(this));
         require(newBal - startBal == amount); // No FoT
 
