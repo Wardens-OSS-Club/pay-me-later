@@ -21,6 +21,10 @@ contract PayMeLater {
 
     uint256 private constant ZERO = 0;
 
+    event PaymentStarted(address indexed from, address indexed recipient, address token, uint256 amount, uint256 nonce);
+    event PaymentCancelled(address indexed recipient, uint256 indexed nonce);
+    event PaymentExecuted(address indexed recipient, uint256 indexed nonce);
+
     /// @notice Initiate a delayed payment
     function startDelayedPayment(address recipient, address token, uint256 amount, uint256 secondsDelayFromNow)
         external
@@ -43,6 +47,8 @@ contract PayMeLater {
         cachedToken.safeTransferFrom(msg.sender, address(this), amount);
         uint256 newBal = cachedToken.balanceOf(address(this));
         require(newBal - startBal == amount); // No FoT
+
+        emit PaymentStarted(msg.sender, recipient, token, amount, cachedNonce);
 
         return cachedNonce;
     }
@@ -68,6 +74,8 @@ contract PayMeLater {
         // Transfer the token
         cachedToken.safeTransfer(msg.sender, cachedAmount);
 
+        emit PaymentCancelled(recipient, nonce);
+
         return (address(cachedToken), cachedAmount);
     }
 
@@ -91,6 +99,8 @@ contract PayMeLater {
 
         // Transfer the token
         cachedToken.safeTransfer(recipient, cachedAmount);
+
+        emit PaymentExecuted(recipient, nonce);
 
         return (recipient, address(cachedToken), cachedAmount);
     }
@@ -118,6 +128,8 @@ contract PayMeLater {
 
         // Transfer the token
         cachedToken.safeTransfer(msg.sender, cachedAmount);
+
+        emit PaymentExecuted(msg.sender, nonce);
 
         return (address(cachedToken), cachedAmount);
     }

@@ -116,6 +116,5 @@ contract PayMeLaterTests is Test {
     tool.claimPaymentAfterExpiry(nonceToKeep);
     balAfter = token.balanceOf(recipient);
     assertEq(balAfter - balB4, 1e18, "Matches what was sent");
-
   }
 }
