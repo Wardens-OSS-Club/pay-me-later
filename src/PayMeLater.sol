@@ -26,7 +26,7 @@ contract PayMeLater {
         external
         returns (uint256)
     {
-        require(secondsDelayFromNow > ZERO); // Use a transfer if you don't want a delay
+        require(secondsDelayFromNow > ZERO, "Must have a delay"); // Use a transfer if you don't want a delay
 
         // Cache the user nonce, then update it
         uint256 cachedNonce = nonces[recipient]++;
@@ -51,7 +51,9 @@ contract PayMeLater {
     ///   Returns the Token and the Amount
     function cancelDelayedPayment(address recipient, uint256 nonce) external returns (address, uint256) {
         DelayedPayment storage paymentData = delayedPaymentInfo[recipient][nonce];
-        require(paymentData.creator == msg.sender); // Can be cancelled even when matured, this is supposed to be used for people you trust
+
+        require(paymentData.creator != address(uint160(ZERO)), "Payment must exist");
+        require(paymentData.creator == msg.sender, "Must be creator"); // Can be cancelled even when matured, this is supposed to be used for people you trust
 
         // Get the data
         IERC20 cachedToken = IERC20(paymentData.token);
@@ -75,7 +77,7 @@ contract PayMeLater {
         // Only initiator can do it
         // Basically same logic as below
         DelayedPayment storage paymentData = delayedPaymentInfo[recipient][nonce];
-        require(paymentData.creator == msg.sender); // Can be cancelled even when matured, this is supposed to be used for people you trust
+        require(paymentData.creator == msg.sender, "Must be creator"); // Can be cancelled even when matured, this is supposed to be used for people you trust
 
         // Get the data
         IERC20 cachedToken = IERC20(paymentData.token);
@@ -102,8 +104,8 @@ contract PayMeLater {
 
         uint256 cachedDeadline = paymentData.deadline;
 
-        require(cachedDeadline != ZERO);
-        require(cachedDeadline >= block.timestamp);
+        require(cachedDeadline != ZERO, "Payment must exist");
+        require(block.timestamp >= cachedDeadline, "Delay must have passed");
 
         IERC20 cachedToken = IERC20(paymentData.token);
         uint256 cachedAmount = paymentData.amount;
